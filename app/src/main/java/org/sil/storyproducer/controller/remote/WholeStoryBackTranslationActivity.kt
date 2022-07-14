@@ -98,7 +98,7 @@ class WholeStoryBackTranslationActivity : PhaseBaseActivity(), PlayBackRecording
         }
 
         //has learn already been watched?
-        isWatchedOnce = storyRelPathExists(this, Workspace.activeStory.wholeStoryBackTAudioFile)
+        isWatchedOnce = storyRelPathExists(this, Workspace.activeStory.wholeStoryBackTAudioFile!!.fileName)
 
         //get story audio duration
         numOfSlides = 0

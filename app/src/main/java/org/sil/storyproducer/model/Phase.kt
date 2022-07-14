@@ -31,13 +31,56 @@ enum class PhaseType {
     @Json(name="CONSULTANT_CHECK") ACCURACY_CHECK,
     @Json(name="DRAMATIZATION") VOICE_STUDIO,
     @Json(name="CREATE") FINALIZE,
-    @Json(name="SHARE") SHARE
+    @Json(name="SHARE") SHARE;
+
+
+    //Compatibility nonsense for ROCC version
+    fun getRecordings(slideNumber: Int = Workspace.activeStory.lastSlideNum): RecordingList {
+        return when (this) {
+            PhaseType.TRANSLATE_REVISE -> Workspace.activeStory.slides[slideNumber].draftRecordings
+            PhaseType.COMMUNITY_WORK -> Workspace.activeStory.slides[slideNumber].communityCheckRecordings
+            PhaseType.VOICE_STUDIO -> Workspace.activeStory.slides[slideNumber].dramatizationRecordings
+            PhaseType.BACK_T -> Workspace.activeStory.slides[slideNumber].backTranslationRecordings
+            else -> throw Exception("Unsupported phase to get a recordings list from")
+        }
+    }
+
+    fun getShortName(): String {
+        return when (this) {
+            PhaseType.TRANSLATE_REVISE -> "Translate"
+            PhaseType.COMMUNITY_WORK -> "Community"
+            //PhaseType.CONSULTANT_CHECK -> "Accuracy" // No idea how consultant check is different from remote check
+            PhaseType.WHOLE_STORY -> "Whole"
+            PhaseType.REMOTE_CHECK -> "Remote"
+            PhaseType.BACK_T -> "BackTrans"
+            PhaseType.VOICE_STUDIO -> "VStudio"
+            PhaseType.FINALIZE -> "Finalize"
+            else -> this.toString().toLowerCase()
+        }
+    }
+
+    fun getDisplayName(): String {
+        return when (this) {
+            PhaseType.TRANSLATE_REVISE -> "Translation Draft"
+            PhaseType.COMMUNITY_WORK -> "Comment"
+            //PhaseType.CONSULTANT_CHECK -> "Accuracy"
+            PhaseType.WHOLE_STORY -> "Whole"
+            PhaseType.REMOTE_CHECK -> "Remote"
+            PhaseType.BACK_T -> "BackTrans"
+            PhaseType.VOICE_STUDIO -> "Studio Recording"
+            PhaseType.FINALIZE -> "Finalize"
+            else -> this.toString().toLowerCase()
+        }
+    }
 }
+
+
 
 /**
  * Phase class used to get information relevant to different phases
  */
 class Phase (val phaseType: PhaseType) {
+
 
     /**
      * Get the icon associated with a phase (used when creating the options menu)

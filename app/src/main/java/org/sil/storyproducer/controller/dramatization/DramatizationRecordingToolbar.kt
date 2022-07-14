@@ -11,7 +11,7 @@ import org.sil.storyproducer.tools.media.AudioRecorder
 import org.sil.storyproducer.tools.toolbar.MultiRecordRecordingToolbar
 import java.io.FileNotFoundException
 
-//Based off of VoiceStudioRecordingToolbar - PROBABLY WILL WORK INCORRECTLY AND MAY OVERWRITE THE VOICE STUDIO AUDIO FILES!!!!!!!!!
+//Based off of VoiceStudioRecordingToolbar
 /**
  * A class responsible for more advanced recording functionality (allowing multiple recordings to
  * be appended together into one final recording).

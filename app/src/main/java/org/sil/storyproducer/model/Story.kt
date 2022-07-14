@@ -42,8 +42,8 @@ class Story(var title: String, var slides: List<Slide>){
     var storyToJasonTimeStamp = ""  // default value - no value available
 
     var isApproved: Boolean = false
-    var learnAudioFile = ""
-    var wholeStoryBackTAudioFile = ""
+    var learnAudioFile: Recording? = Recording("","") //Set these to an empty recording instead of null
+    var wholeStoryBackTAudioFile: Recording? = Recording("","") //
     var activityLogs: MutableList<LogEntry> = ArrayList()
     var outputVideos: MutableList<String> = ArrayList()
     var lastPhaseType: PhaseType = PhaseType.LEARN

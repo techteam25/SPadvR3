@@ -53,6 +53,9 @@ class Slide{
 
     var draftRecordings = RecordingList()
     var backTranslationRecordings = RecordingList()
+    var dramatizationRecordings = RecordingList()
+    var communityCheckRecordings = RecordingList()
+    var consultantCheckRecordings = RecordingList()
 
     @Json(name="draftAudioFiles")
     var translateReviseAudioFiles: MutableList<String> = ArrayList()
