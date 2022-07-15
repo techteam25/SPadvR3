@@ -32,12 +32,12 @@ fun getChosenFilename(slideNum: Int = Workspace.activeSlideNum): String {
 
 fun getChosenCombName(slideNum: Int = Workspace.activeSlideNum): String {
     return when (Workspace.activePhase.phaseType) {
-        PhaseType.LEARN -> Workspace.activeStory.learnAudioFile!!.fileName // fileName???
+        PhaseType.LEARN -> Workspace.activeStory.learnAudioFile!!.fileName
         PhaseType.TRANSLATE_REVISE -> Workspace.activeStory.slides[slideNum].chosenTranslateReviseFile
         PhaseType.WORD_LINKS -> Workspace.activeWordLink.chosenWordLinkFile
         PhaseType.VOICE_STUDIO -> Workspace.activeStory.slides[slideNum].chosenVoiceStudioFile
         PhaseType.BACK_T -> Workspace.activeStory.slides[slideNum].chosenBackTranslationFile
-        PhaseType.WHOLE_STORY -> Workspace.activeStory.wholeStoryBackTAudioFile!!.fileName // fileName???
+        PhaseType.WHOLE_STORY -> Workspace.activeStory.wholeStoryBackTAudioFile!!.fileName
         else -> ""
     }
 }

@@ -95,11 +95,8 @@ class LearnActivity : PhaseBaseActivity(), PlayBackRecordingToolbar.ToolbarMedia
         }
 
         //has learn already been watched?
-        try {
             isWatchedOnce = storyRelPathExists(this, Workspace.activeStory.learnAudioFile!!.fileName)
-        } catch(e:Exception){
-            isWatchedOnce = false
-        }
+
 
         //get story audio duration
         numOfSlides = 0
