@@ -78,8 +78,7 @@ class AudioPlayer {
      * @return true if the file exists, false if it does not.
      */
 
-    fun setStorySource(context: Context, relPath: String,
-                       storyName: String = Workspace.activeStory.title) : Boolean {
+    fun setStorySource(context: Context, relPath: String, storyName: String = Workspace.activeStory.title) : Boolean {
         val uri: Uri = if (Workspace.activePhase.phaseType == PhaseType.WORD_LINKS){
             getStoryUri(relPath, WORD_LINKS_DIR) ?: return false
         }

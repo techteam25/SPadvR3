@@ -25,7 +25,7 @@ internal const val AUDIO_EXT = ".m4a"
  * @return the path generated, or an empty string if there is a failure.
  */
 
-//Going to need these next functions for compatibility reasons
+//Going to need these next functions for compatibility reasons. There will likely be problems because of the change from String to the Recording class
 fun getChosenFilename(slideNum: Int = Workspace.activeSlideNum): String {
     return Story.getFilename(getChosenCombName(slideNum))
 }
