@@ -4,6 +4,7 @@ import android.view.View
 import android.widget.ImageButton
 import org.sil.storyproducer.R
 import org.sil.storyproducer.controller.adapter.RecordingsListAdapter
+import org.sil.storyproducer.model.Workspace
 
 /**
  * A class responsible for listing recorded audio files from a recording toolbar.
@@ -47,7 +48,7 @@ open class MultiRecordRecordingToolbar: PlayBackRecordingToolbar() {
 
             toolbarMediaListener.onStartedToolbarMedia()
             
-            RecordingsListAdapter.RecordingsListModal(activity!!, this).show()
+            RecordingsListAdapter.RecordingsListModal(activity!!, this, Workspace.activePhase.phaseType).show()
         }
     }
 }

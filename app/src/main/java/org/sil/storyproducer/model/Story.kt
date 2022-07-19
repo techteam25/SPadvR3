@@ -44,6 +44,8 @@ class Story(var title: String, var slides: List<Slide>){
     var isApproved: Boolean = false
     var learnAudioFile: Recording? = Recording("","") //Set these to an empty recording instead of null
     var wholeStoryBackTAudioFile: Recording? = Recording("","") //
+    var wholeStoryBackTranslationUploadState = UploadState.NOT_UPLOADED
+
     var activityLogs: MutableList<LogEntry> = ArrayList()
     var outputVideos: MutableList<String> = ArrayList()
     var lastPhaseType: PhaseType = PhaseType.LEARN

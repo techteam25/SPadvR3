@@ -17,6 +17,7 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomsheet.BottomSheetBehavior.*
 import org.sil.storyproducer.R
@@ -88,9 +89,9 @@ class WordLinksActivity : AppCompatActivity(), PlayBackRecordingToolbar.ToolbarM
     }
 
     private fun setupRecordingList() {
-        displayList = RecordingsListAdapter.RecordingsListModal(this, recordingToolbar)
+        displayList = RecordingsListAdapter.RecordingsListModal(this, recordingToolbar, Workspace.activePhase.phaseType)
         displayList.embedList(findViewById(android.R.id.content))
-        displayList.setParentFragment(null)
+        displayList.setParentFragment(Fragment())
         displayList.show()
     }
 

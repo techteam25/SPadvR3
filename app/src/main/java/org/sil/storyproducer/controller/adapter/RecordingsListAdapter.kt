@@ -3,6 +3,8 @@ package org.sil.storyproducer.controller.adapter
 import android.app.AlertDialog
 import android.content.Context
 import android.media.MediaPlayer
+import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import androidx.appcompat.widget.Toolbar
@@ -17,19 +19,20 @@ import androidx.fragment.app.Fragment
 import org.sil.storyproducer.R
 import org.sil.storyproducer.controller.Modal
 import org.sil.storyproducer.model.PhaseType
+import org.sil.storyproducer.model.RecordingList
 import org.sil.storyproducer.model.Workspace
 import org.sil.storyproducer.model.logging.saveLog
 import org.sil.storyproducer.tools.file.*
 import org.sil.storyproducer.tools.media.AudioPlayer
 import org.sil.storyproducer.tools.toolbar.RecordingToolbar
 
-class RecordingsListAdapter(val values: MutableList<String>?, private val listeners: ClickListeners) : RecyclerView.Adapter<RecordingsListAdapter.ViewHolder>() {
+class RecordingsListAdapter(private val recordings: RecordingList, private val listeners: ClickListeners) : RecyclerView.Adapter<RecordingsListAdapter.ViewHolder>() {
 
     interface ClickListeners {
         fun onRowClick(pos: Int)
         fun onPlayClick(pos: Int, buttonClickedNow: ImageButton)
         fun onDeleteClick(name: String, pos: Int)
-        fun onRenameClick(position: Int, newName: String)
+        fun onRenameClick(pos: Int, newName: String)
     }
 
     private var selectedPos = RecyclerView.NO_POSITION
@@ -41,22 +44,18 @@ class RecordingsListAdapter(val values: MutableList<String>?, private val listen
         return ViewHolder(individualAudio)
     }
 
-    override fun getItemCount(): Int = values?.size ?: 0
+    override fun getItemCount(): Int = recordings.getFiles().size
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val audioText = values?.get(position)
-        if (audioText != null) {
-            if (getChosenDisplayName().contains(audioText)) {
-                val color = ContextCompat.getColor(holder.itemView.context, R.color.primary)
-                holder.itemView.setBackgroundColor(color)
-                selectedPos = holder.adapterPosition
-            }
-            else{
-                val color = ContextCompat.getColor(holder.itemView.context, R.color.black)
-                holder.itemView.setBackgroundColor(color)
-            }
-            holder.bindView(audioText)
+        if (recordings.selectedIndex == position) {
+            val color = ContextCompat.getColor(holder.itemView.context, R.color.primary)
+            holder.itemView.setBackgroundColor(color)
+            selectedPos = holder.adapterPosition
+        } else {
+            val color = ContextCompat.getColor(holder.itemView.context, R.color.black)
+            holder.itemView.setBackgroundColor(color)
         }
+        holder.bindView(recordings.getFiles()[position].displayName)
     }
 
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -88,14 +87,14 @@ class RecordingsListAdapter(val values: MutableList<String>?, private val listen
 
         private fun showDeleteItemDialog(position: Int, text: String) {
             val dialog = AlertDialog.Builder(itemView.context)
-                    .setTitle(itemView.context.getString(R.string.delete_audio_title))
-                    .setMessage(itemView.context.getString(R.string.delete_audio_message))
-                    .setNegativeButton(itemView.context.getString(R.string.no), null)
-                    .setPositiveButton(itemView.context.getString(R.string.yes)) { _, _ ->
-                        listeners.onDeleteClick(text, position)
-                        notifyItemRemoved(position)
-                    }
-                    .create()
+                .setTitle(itemView.context.getString(R.string.delete_audio_title))
+                .setMessage(itemView.context.getString(R.string.delete_audio_message))
+                .setNegativeButton(itemView.context.getString(R.string.no), null)
+                .setPositiveButton(itemView.context.getString(R.string.yes)) { _, _ ->
+                    listeners.onDeleteClick(text, position)
+                    notifyItemRemoved(position)
+                }
+                .create()
 
             dialog.show()
         }
@@ -110,62 +109,49 @@ class RecordingsListAdapter(val values: MutableList<String>?, private val listen
 
             // Programmatically set layout properties for edit text field
             val params = ViewGroup.LayoutParams(
-                    ViewGroup.LayoutParams.MATCH_PARENT,
-                    ViewGroup.LayoutParams.MATCH_PARENT)
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT)
             // Apply layout properties
             newName.layoutParams = params
 
-            // 11/13/2021 - DKH, Issue 606, Wordlinks quick fix for text back translation
-            // This piece of software is used in multiple places in Story Producer
-            // Grab the default instructions for data entry
-            // This is something like: "Choose a new name"
-            var title = itemView.context.getString(R.string.rename_title)
-
-            // If this is Wordlinks, use instructions that are geared toward Wordlinks
-            when(Workspace.activePhase.phaseType){
-                PhaseType.WORD_LINKS -> {
-                    title = itemView.context.getString(R.string.rename_title_wordlinks)
-                }
-            }
-
             val dialog = AlertDialog.Builder(itemView.context)
-                    .setTitle(title)
-                    .setView(newName)
-                    .setNegativeButton(itemView.context.getString(R.string.cancel), null)
-                    .setPositiveButton(itemView.context.getString(R.string.save)) { _, _ ->
-                        listeners.onRenameClick(position, newName.text.toString())
-                        notifyDataSetChanged()
-                    }.create()
+                .setTitle(itemView.context.getString(R.string.rename_title))
+                .setView(newName)
+                .setNegativeButton(itemView.context.getString(R.string.cancel), null)
+                .setPositiveButton(itemView.context.getString(R.string.save)) { _, _ ->
+                    listeners.onRenameClick(position, newName.text.toString())
+                    notifyDataSetChanged()
+                }.create()
 
             dialog.show()
             //TODO make keyboard show at once, but right now there are too many issues with it.
         }
     }
 
-    class RecordingsListModal(private val context: Context, private val toolbar: RecordingToolbar?) : ClickListeners, Modal {
-        private var rootView: ViewGroup? = null
+    class RecordingsListModal(private val context: Context, private val toolbar: RecordingToolbar?, private val phaseType: PhaseType) : ClickListeners, Modal {
+        private lateinit var rootView: ViewGroup
         private var dialog: AlertDialog? = null
-        private var displayNames: MutableList<String> = mutableListOf()
-        internal var recyclerView: androidx.recyclerview.widget.RecyclerView? = null
+        private var displayNames = RecordingList()
+        internal lateinit var recyclerView: RecyclerView
         private val audioPlayer: AudioPlayer = AudioPlayer()
         private var currentPlayingButton: ImageButton? = null
         private var audioPos = -1
         private var embedded = false
         private var playbackListener: RecordingToolbar.ToolbarMediaListener? = null
-        private var slideNum: Int = Workspace.activeSlideNum
+        private var slideNumber: Int = Workspace.activeStory.lastSlideNum
 
-        fun setSlideNum(mSlideNum:Int){
-            slideNum = mSlideNum
+        // TODO @pwhite: Can I remove this function?
+        fun setSlideNum(mSlideNum: Int) {
+            slideNumber = mSlideNum
         }
 
-        fun setParentFragment(parentFragment: Fragment?){
-            try{
+        fun setParentFragment(parentFragment: Fragment) {
+            try {
                 playbackListener = parentFragment as RecordingToolbar.ToolbarMediaListener
-            }
-            catch (e : ClassCastException){
+            } catch (e: ClassCastException) {
                 playbackListener = context as RecordingToolbar.ToolbarMediaListener
+            } catch (e: Exception) {
             }
-            catch (e:Exception){}
         }
 
         fun embedList(view: ViewGroup) {
@@ -176,25 +162,25 @@ class RecordingsListAdapter(val values: MutableList<String>?, private val listen
         override fun show() {
             if (!embedded) {
                 val inflater = LayoutInflater.from(context)
-                rootView = inflater?.inflate(R.layout.recordings_list, rootView) as ViewGroup?
+                rootView = inflater.inflate(R.layout.recordings_list, null) as ViewGroup
             }
 
-            recyclerView = rootView?.findViewById(R.id.recordings_list)
+            recyclerView = rootView.findViewById(R.id.recordings_list)
 
             resetRecordingList()
-            recyclerView?.adapter = RecordingsListAdapter(displayNames, this)
-            recyclerView?.addItemDecoration(androidx.recyclerview.widget.DividerItemDecoration(context, androidx.recyclerview.widget.DividerItemDecoration.VERTICAL))
-            recyclerView?.layoutManager = androidx.recyclerview.widget.LinearLayoutManager(context)
+            recyclerView.adapter = RecordingsListAdapter(displayNames, this)
+            recyclerView.addItemDecoration(DividerItemDecoration(context, DividerItemDecoration.VERTICAL))
+            recyclerView.layoutManager = LinearLayoutManager(context)
 
             if (!embedded) {
-                val tb = rootView?.findViewById<Toolbar>(R.id.toolbar2)
+                val tb = rootView.findViewById<Toolbar>(R.id.toolbar2)
                 tb?.setTitle(R.string.recordings_title)
 
                 val alertDialog = AlertDialog.Builder(context)
                 alertDialog.setView(rootView)
                 dialog = alertDialog.create()
 
-                val exit = rootView?.findViewById<ImageButton>(R.id.exitButton)
+                val exit = rootView.findViewById<ImageButton>(R.id.exitButton)
                 exit?.setOnClickListener {
                     dialog?.dismiss()
                 }
@@ -212,15 +198,12 @@ class RecordingsListAdapter(val values: MutableList<String>?, private val listen
          */
         fun resetRecordingList() {
             //only update if there was a change.
-            val newNames = getRecordedDisplayNames(slideNum) ?:  mutableListOf()
-            if(!displayNames.equals(newNames)) {
-                displayNames = newNames
-                recyclerView?.adapter = RecordingsListAdapter(displayNames, this)
-            }
+            displayNames = phaseType.getRecordings()
+            recyclerView.adapter = RecordingsListAdapter(displayNames, this)
         }
 
         override fun onRowClick(pos: Int) {
-            setChosenFileIndex(pos)
+            displayNames.selectedIndex = pos
         }
 
         override fun onPlayClick(pos: Int, buttonClickedNow: ImageButton) {
@@ -242,10 +225,11 @@ class RecordingsListAdapter(val values: MutableList<String>?, private val listen
                     stopAudio()
                 })
 
-                if (storyRelPathExists(context, getRecordedAudioFiles()[pos])) {
-                    audioPlayer.setStorySource(context, getRecordedAudioFiles()[pos])
+                val recordingFile = phaseType.getRecordings().getFiles()[pos].fileName
+                if (storyRelPathExists(context, recordingFile)) {
+                    audioPlayer.setStorySource(context, recordingFile)
                     audioPlayer.playAudio()
-                    when (Workspace.activePhase.phaseType) {
+                    when (phaseType) {
                         PhaseType.TRANSLATE_REVISE -> saveLog(context.getString(R.string.DRAFT_PLAYBACK))
                         PhaseType.COMMUNITY_WORK -> saveLog(context.getString(R.string.COMMENT_PLAYBACK))
                         else -> {
@@ -257,31 +241,19 @@ class RecordingsListAdapter(val values: MutableList<String>?, private val listen
             }
         }
 
-        override fun onDeleteClick(name: String, pos: Int){
-            if (Workspace.activePhase.phaseType == PhaseType.WORD_LINKS) {
-                deleteWLAudioFileFromList(context, pos)
-            } else {
-                deleteAudioFileFromList(context,pos)
-            }
-            displayNames.removeAt(pos)
-            recyclerView?.adapter!!.notifyDataSetChanged()
-            if ("${Workspace.activeDir}/$name" == getChosenDisplayName()) {
-                if (displayNames.size > 0) {
-                    onRowClick(displayNames.size-1)
-                }
-                else {
-                    setChosenFileIndex(-1)
-                    toolbar?.updateInheritedToolbarButtonVisibility()
-                    dialog?.dismiss()
-                }
+        override fun onDeleteClick(name: String, pos: Int) {
+            deleteAudioFileFromList(context, pos)
+            recyclerView.adapter!!.notifyDataSetChanged()
+            if (displayNames.getFiles().isEmpty()) {
+                toolbar?.updateInheritedToolbarButtonVisibility()
+                dialog?.dismiss()
             }
         }
 
-        override fun onRenameClick(position: Int, newName: String) {
-            updateDisplayName(position, newName)
-            setChosenFileIndex(position)
-            displayNames[position] = newName
-            recyclerView?.adapter!!.notifyDataSetChanged()
+        override fun onRenameClick(pos: Int, newName: String) {
+            updateDisplayName(pos, newName)
+            displayNames.selectedIndex = pos
+            recyclerView.adapter!!.notifyDataSetChanged()
         }
 
         fun stopAudio() {
