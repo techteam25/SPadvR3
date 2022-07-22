@@ -7,6 +7,7 @@ import org.sil.storyproducer.controller.RegistrationActivity
 import org.sil.storyproducer.controller.export.FinalizeActivity
 import org.sil.storyproducer.controller.export.ShareActivity
 import org.sil.storyproducer.controller.learn.LearnActivity
+import org.sil.storyproducer.controller.remote.WholeStoryBackTranslationFragment
 import org.sil.storyproducer.controller.pager.PagerBaseActivity
 import org.sil.storyproducer.controller.wordlink.WordLinksActivity
 
@@ -297,6 +298,7 @@ class Phase (val phaseType: PhaseType) {
                 PhaseType.COMMUNITY_WORK,
                 PhaseType.ACCURACY_CHECK,
                 PhaseType.VOICE_STUDIO,
+                PhaseType.WHOLE_STORY,
                 PhaseType.BACK_T -> slide.draftRecordings.selectedFile
                 PhaseType.REMOTE_CHECK -> slide.draftRecordings.selectedFile
                 else -> throw Exception("Unsupported stage to get a reference audio file for")

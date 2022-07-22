@@ -52,6 +52,7 @@ fun setChosenFileIndex(index: Int, slideNum: Int = Workspace.activeSlideNum){
     when(Workspace.activePhase.phaseType){
         PhaseType.TRANSLATE_REVISE -> Workspace.activeStory.slides[slideNum].chosenTranslateReviseFile = combName
         PhaseType.WORD_LINKS -> Workspace.activeWordLink.chosenWordLinkFile = combName
+        PhaseType.WHOLE_STORY -> Workspace.activeStory.wholeStoryBackTAudioFile = combName
         PhaseType.VOICE_STUDIO -> Workspace.activeStory.slides[slideNum].chosenVoiceStudioFile = combName
         PhaseType.BACK_T -> Workspace.activeStory.slides[slideNum].chosenBackTranslationFile = combName
         else -> return

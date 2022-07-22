@@ -31,6 +31,7 @@
         android:layout_height="wrap_content"
         android:background="@color/black_semi_transparent"
         android:contentDescription="@string/play"
+        android:onClick="onClickPlayPauseButton"
         android:src="@drawable/ic_play_arrow_white_48dp"
         app:layout_constraintEnd_toStartOf="@id/videoSeekBar"
         app:layout_constraintStart_toStartOf="parent"
@@ -49,21 +50,6 @@
         app:layout_constraintStart_toEndOf="@id/fragment_reference_audio_button"
         app:layout_constraintTop_toTopOf="@id/fragment_reference_audio_button" />
 
-    <ImageView
-        android:id="@+id/soundOff"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
-        android:contentDescription="@string/sound_off"
-        android:checked="true"
-        app:layout_constraintBottom_toTopOf="@id/toolbar_for_recording_toolbar"
-        app:layout_constraintEnd_toStartOf="@id/volumeSwitch"
-        app:layout_constraintHorizontal_bias="0.85"
-        app:layout_constraintHorizontal_chainStyle="packed"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/videoSeekBar"
-        app:srcCompat="@drawable/ic_volume_off_white_36dp" />
-
     <com.getbase.floatingactionbutton.FloatingActionButton
         android:id="@+id/upload_audio_botton"
         android:layout_width="wrap_content"
@@ -74,6 +60,20 @@
         app:layout_constraintEnd_toStartOf="@+id/soundOff"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/fragment_reference_audio_button" />
+
+    <ImageView
+        android:id="@+id/soundOff"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:contentDescription="@string/sound_off"
+        app:layout_constraintBottom_toTopOf="@id/toolbar_for_recording_toolbar"
+        app:layout_constraintEnd_toStartOf="@id/volumeSwitch"
+        app:layout_constraintHorizontal_bias="0.85"
+        app:layout_constraintHorizontal_chainStyle="packed"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/videoSeekBar"
+        app:srcCompat="@drawable/ic_volume_off_white_36dp" />
 
     <Switch
         android:id="@+id/volumeSwitch"

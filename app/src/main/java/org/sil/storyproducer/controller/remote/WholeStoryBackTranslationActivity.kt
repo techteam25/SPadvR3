@@ -114,7 +114,7 @@ class WholeStoryBackTranslationFragment : Fragment(), PlayBackRecordingToolbar.T
             rootView.findViewById(R.id.upload_audio_botton),
             { Workspace.activeStory.wholeStoryBackTranslationUploadState },
             { Workspace.activeStory.wholeStoryBackTranslationUploadState = it },
-            { org.sil.storyproducer.tools.file.getChosenFilename() },
+            { Workspace.activeStory.wholeStoryBackTAudioFile },
             null)
 
         seekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
